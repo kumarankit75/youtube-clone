@@ -8,8 +8,9 @@ import Upload from "./pages/Upload";
 import Search from "./pages/Search";
 import Trending from "./pages/Trending";
 import TagVideos from "./pages/TagVideos";
-import NotFound from "./pages/NotFound";
 import Channel from "./pages/Channel";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -24,9 +25,9 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/trending" element={<Trending />} />
         <Route path="/tags" element={<TagVideos />} />
-        <Route path="*" element={<NotFound />} />
         <Route path="/channel/:channelId" element={<Channel />} />
-
+        <Route path="/profile" element={<Profile />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
