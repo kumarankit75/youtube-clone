@@ -13,27 +13,63 @@ const Channel = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("videos");
 
-  useEffect(() => {
-    const fetchChannel = async () => {
-      try {
-        const channelRes = await API.get(`/api/users/channel/${channelId}`);
-        setChannel(channelRes.data);
+//   useEffect(() => {
+//     const fetchChannel = async () => {
+//       try {
+//         const channelRes = await API.get(`/api/users/channel/${channelId}`);
+//         setChannel(channelRes.data);
 
-        const videosRes = await API.get(`/api/videos/user/${channelId}`);
-        setVideos(videosRes.data);
+//         const videosRes = await API.get(`/api/videos/user/${channelId}`);
+//         setVideos(videosRes.data);
 
-        if (currentUser) {
-          setSubscribed(channelRes.data.subscribedUsers?.includes(currentUser._id));
-        }
+//         if (currentUser) {
+//           setSubscribed(channelRes.data.subscribedUsers?.includes(currentUser._id));
+//         }
 
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        setLoading(false);
+//         setLoading(false);
+//       } catch (err) {
+//         console.error(err);
+//         setLoading(false);
+//       }
+//     };
+//     fetchChannel();
+//   }, [channelId, currentUser]);
+
+
+
+useEffect(() => {
+  const fetchChannel = async () => {
+    try {
+      const channelRes = await API.get(`/api/users/channel/${channelId}`);
+      setChannel(channelRes.data);
+
+      const videosRes = await API.get(`/api/videos/user/${channelId}`);
+      console.log("Videos fetched:", videosRes.data); // 👈 debug
+      setVideos(videosRes.data);
+
+      if (currentUser) {
+        setSubscribed(
+          channelRes.data.subscribedUsers?.includes(
+            currentUser._id || currentUser.id
+          )
+        );
       }
-    };
-    fetchChannel();
-  }, [channelId, currentUser]);
+
+      setLoading(false);
+    } catch (err) {
+      console.error("Channel fetch error:", err);
+      setLoading(false);
+    }
+  };
+  fetchChannel();
+}, [channelId, currentUser]);
+
+
+  console.log("currentUser:", currentUser);
+console.log("channel:", channel);
+console.log("videos:", videos);
+
+
 
   const handleSubscribe = async () => {
     if (!currentUser) return navigate("/login");
