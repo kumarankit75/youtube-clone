@@ -146,6 +146,18 @@ const getTrendingVideos = async (req, res) => {
 };
 
 
+// Get all videos by a specific user
+const getVideosByUser = async (req, res) => {
+  try {
+    const videos = await Video.find({ userId: req.params.userId })
+      .sort({ createdAt: -1 });
+    res.status(200).json(videos);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 
 module.exports = {
   uploadVideo,
@@ -156,5 +168,6 @@ module.exports = {
   likeVideo,
   dislikeVideo,
     getTrendingVideos,
+    getVideosByUser,
 
 };

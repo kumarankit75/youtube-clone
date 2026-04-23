@@ -9,6 +9,7 @@ import Search from "./pages/Search";
 import Trending from "./pages/Trending";
 import TagVideos from "./pages/TagVideos";
 import NotFound from "./pages/NotFound";
+import Channel from "./pages/Channel";
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
         <Route path="/trending" element={<Trending />} />
         <Route path="/tags" element={<TagVideos />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/channel/:channelId" element={<Channel />} />
+
       </Routes>
     </BrowserRouter>
   );

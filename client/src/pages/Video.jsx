@@ -126,7 +126,7 @@ const VideoPage = () => {
             </div>
           </div>
 
-          {channel && (
+          {/* {channel && (
             <div className="flex items-center justify-between bg-gray-800 p-4 rounded-xl mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center font-bold text-lg">
@@ -147,7 +147,39 @@ const VideoPage = () => {
                 </button>
               )}
             </div>
-          )}
+          )} */}
+
+
+
+
+            {channel && (
+  <div className="flex items-center justify-between bg-gray-800 p-4 rounded-xl mb-4">
+    <Link to={`/channel/${channel._id}`} className="flex items-center gap-3 hover:opacity-80 transition">
+      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center font-bold text-lg">
+        {channel.avatar
+          ? <img src={channel.avatar} alt={channel.username}
+              className="w-full h-full rounded-full object-cover" />
+          : channel.username?.[0]?.toUpperCase()
+        }
+      </div>
+      <div>
+        <p className="font-semibold">{channel.username}</p>
+        <p className="text-gray-400 text-sm">{channel.subscribers} subscribers</p>
+      </div>
+    </Link>
+    {currentUser?._id !== channel._id && (
+      <button onClick={handleSubscribe}
+        className={`px-5 py-2 rounded-full text-sm font-semibold transition
+          ${subscribed
+            ? "bg-gray-600 text-white hover:bg-gray-500"
+            : "bg-red-600 text-white hover:bg-red-700"}`}>
+        {subscribed ? "Subscribed ✓" : "Subscribe"}
+      </button>
+    )}
+  </div>
+)}
+
+
 
           <div className="bg-gray-800 p-4 rounded-xl mb-6">
             <p className="text-gray-300">{video.description}</p>
