@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "../utils/api";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -29,28 +29,12 @@ const Upload = () => {
 
     try {
       setLoading(true);
-    //   const res = await axios.post("http://localhost:5000/api/videos", formData, {
-    //     headers: {
-    //       Authorization: `Bearer ${currentUser.token}`,
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //     onUploadProgress: (e) => {
-    //       setProgress(Math.round((e.loaded * 100) / e.total));
-    //     },
-    //   });
-
-
-        const res = await axios.post("http://localhost:5000/api/videos", formData, {
-  headers: {
-    Authorization: `Bearer ${currentUser.token}`,
-    "Content-Type": "multipart/form-data",
-  },
-  onUploadProgress: (e) => {
-    setProgress(Math.round((e.loaded * 100) / e.total));
-  },
-});
-
-
+      const res = await API.post("/api/videos", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (e) => {
+          setProgress(Math.round((e.loaded * 100) / e.total));
+        },
+      });
       setLoading(false);
       navigate(`/video/${res.data._id}`);
     } catch (err) {
@@ -76,19 +60,16 @@ const Upload = () => {
             className="bg-gray-700 text-white p-3 rounded-lg outline-none resize-none" required />
           <input name="tags" placeholder="Tags (comma separated)" onChange={handleChange}
             className="bg-gray-700 text-white p-3 rounded-lg outline-none" />
-
           <div>
             <label className="text-gray-400 text-sm mb-1 block">Video File</label>
             <input type="file" accept="video/*" onChange={(e) => setVideo(e.target.files[0])}
               className="text-gray-300 w-full" required />
           </div>
-
           <div>
             <label className="text-gray-400 text-sm mb-1 block">Thumbnail</label>
             <input type="file" accept="image/*" onChange={(e) => setThumbnail(e.target.files[0])}
               className="text-gray-300 w-full" required />
           </div>
-
           {loading && (
             <div className="w-full bg-gray-700 rounded-full h-3">
               <div className="bg-red-600 h-3 rounded-full transition-all"
@@ -96,7 +77,6 @@ const Upload = () => {
               <p className="text-gray-400 text-sm mt-1 text-center">{progress}% uploaded</p>
             </div>
           )}
-
           <button type="submit" disabled={loading}
             className="bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50">
             {loading ? "Uploading..." : "Upload Video"}

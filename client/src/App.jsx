@@ -5,6 +5,10 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import VideoPage from "./pages/Video";
 import Upload from "./pages/Upload";
+import Search from "./pages/Search";
+import Trending from "./pages/Trending";
+import TagVideos from "./pages/TagVideos";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -16,6 +20,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/video/:id" element={<VideoPage />} />
         <Route path="/upload" element={<Upload />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/trending" element={<Trending />} />
+        <Route path="/tags" element={<TagVideos />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

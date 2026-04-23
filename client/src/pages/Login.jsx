@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import API from "../utils/api";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginStart, loginSuccess, loginFailure } from "../redux/userSlice";
@@ -17,7 +17,7 @@ const Login = () => {
     e.preventDefault();
     dispatch(loginStart());
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", form);
+      const res = await API.post("/api/auth/login", form);
       dispatch(loginSuccess(res.data));
       navigate("/");
     } catch (err) {

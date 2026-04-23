@@ -126,6 +126,8 @@ const {
 
 const { likeVideo, dislikeVideo } = require("../controllers/videoController");
 
+const { getTrendingVideos } = require("../controllers/videoController");
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -172,6 +174,8 @@ router.post("/", verifyToken, (req, res, next) => {
 router.get("/", getAllVideos);
 router.get("/search", searchVideos);
 router.get("/tags", getVideosByTag);
+router.get("/trending", getTrendingVideos);
+
 router.get("/:id", getVideo);
 
 router.put("/like/:id", verifyToken, likeVideo);

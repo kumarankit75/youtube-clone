@@ -134,6 +134,19 @@ const searchVideos = async (req, res) => {
   }
 };
 
+
+// Trending videos - sorted by views
+const getTrendingVideos = async (req, res) => {
+  try {
+    const videos = await Video.find().sort({ views: -1 }).limit(20);
+    res.status(200).json(videos);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
+
 module.exports = {
   uploadVideo,
   getVideo,
@@ -142,4 +155,6 @@ module.exports = {
   searchVideos,
   likeVideo,
   dislikeVideo,
+    getTrendingVideos,
+
 };
