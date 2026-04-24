@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import API from "../utils/api";
 import { useSelector } from "react-redux";
 import Recommended from "../components/Recommended";
+import LiveChat from "../components/LiveChat";
 
 const VideoPage = () => {
   const { id } = useParams();
@@ -212,10 +213,13 @@ const VideoPage = () => {
           </div>
         </div>
 
-        {/* Right - Recommended Sidebar */}
-        <div className="w-full lg:w-80 lg:flex-shrink-0">
-          <Recommended tags={video.tags} currentVideoId={video._id} />
-        </div>
+       {/* Right - Sidebar */}
+<div className="w-full lg:w-80 lg:flex-shrink-0 flex flex-col gap-6">
+  {/* Live Chat */}
+  <LiveChat videoId={id} />
+  {/* Recommended */}
+  <Recommended tags={video.tags} currentVideoId={video._id} />
+</div>
 
       </div>
     </div>
