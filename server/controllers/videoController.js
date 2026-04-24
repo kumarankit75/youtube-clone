@@ -1,67 +1,9 @@
 const Video = require("../models/Video");
+const User = require("../models/User");
+const Notification = require("../models/Notification");
 
-// Like a video
-const likeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
-    if (!video) return res.status(404).json({ message: "Video not found" });
-
-    // Remove from dislikes if exists
-    await Video.findByIdAndUpdate(req.params.id, {
-      $pull: { dislikes: req.user.id },
-    });
-
-    // Toggle like
-    if (video.likes.includes(req.user.id)) {
-      await Video.findByIdAndUpdate(req.params.id, {
-        $pull: { likes: req.user.id },
-      });
-      return res.status(200).json({ message: "Like removed" });
-    } else {
-      await Video.findByIdAndUpdate(req.params.id, {
-        $push: { likes: req.user.id },
-      });
-      return res.status(200).json({ message: "Video liked" });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Dislike a video
-const dislikeVideo = async (req, res) => {
-  try {
-    const video = await Video.findById(req.params.id);
-    if (!video) return res.status(404).json({ message: "Video not found" });
-
-    // Remove from likes if exists
-    await Video.findByIdAndUpdate(req.params.id, {
-      $pull: { likes: req.user.id },
-    });
-
-    // Toggle dislike
-    if (video.dislikes.includes(req.user.id)) {
-      await Video.findByIdAndUpdate(req.params.id, {
-        $pull: { dislikes: req.user.id },
-      });
-      return res.status(200).json({ message: "Dislike removed" });
-    } else {
-      await Video.findByIdAndUpdate(req.params.id, {
-        $push: { dislikes: req.user.id },
-      });
-      return res.status(200).json({ message: "Video disliked" });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-// Keep all existing functions and add these exports
 const uploadVideo = async (req, res) => {
   try {
-    console.log("Files received:", req.files);
-    console.log("Body received:", req.body);
-
     const { title, description, tags } = req.body;
 
     if (!req.files || !req.files.video || !req.files.thumbnail) {
@@ -78,9 +20,92 @@ const uploadVideo = async (req, res) => {
     });
 
     await newVideo.save();
+
+    // Notify all subscribers about new video
+    const uploader = await User.findById(req.user.id);
+    if (uploader.subscribedUsers && uploader.subscribedUsers.length > 0) {
+      const notifications = uploader.subscribedUsers.map((subscriberId) => ({
+        receiverId: subscriberId,
+        senderId: req.user.id,
+        senderName: uploader.username,
+        senderAvatar: uploader.avatar || "",
+        type: "upload",
+        message: `${uploader.username} uploaded a new video: "${title}"`,
+        videoId: newVideo._id,
+        videoTitle: title,
+      }));
+      await Notification.insertMany(notifications);
+    }
+
     res.status(201).json(newVideo);
   } catch (err) {
-    console.error("Upload error:", JSON.stringify(err, null, 2));
+    console.error("Upload error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const likeVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+    if (!video) return res.status(404).json({ message: "Video not found" });
+
+    await Video.findByIdAndUpdate(req.params.id, {
+      $pull: { dislikes: req.user.id },
+    });
+
+    if (video.likes.includes(req.user.id)) {
+      await Video.findByIdAndUpdate(req.params.id, {
+        $pull: { likes: req.user.id },
+      });
+      return res.status(200).json({ message: "Like removed" });
+    } else {
+      await Video.findByIdAndUpdate(req.params.id, {
+        $push: { likes: req.user.id },
+      });
+
+      // Notify video owner
+      if (video.userId !== req.user.id) {
+        const liker = await User.findById(req.user.id);
+        await Notification.create({
+          receiverId: video.userId,
+          senderId: req.user.id,
+          senderName: liker.username,
+          senderAvatar: liker.avatar || "",
+          type: "like",
+          message: `${liker.username} liked your video "${video.title}"`,
+          videoId: video._id,
+          videoTitle: video.title,
+        });
+      }
+
+      return res.status(200).json({ message: "Video liked" });
+    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const dislikeVideo = async (req, res) => {
+  try {
+    const video = await Video.findById(req.params.id);
+    if (!video) return res.status(404).json({ message: "Video not found" });
+
+    await Video.findByIdAndUpdate(req.params.id, {
+      $pull: { likes: req.user.id },
+    });
+
+    if (video.dislikes.includes(req.user.id)) {
+      await Video.findByIdAndUpdate(req.params.id, {
+        $pull: { dislikes: req.user.id },
+      });
+      return res.status(200).json({ message: "Dislike removed" });
+    } else {
+      await Video.findByIdAndUpdate(req.params.id, {
+        $push: { dislikes: req.user.id },
+      });
+      return res.status(200).json({ message: "Video disliked" });
+    }
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
@@ -134,8 +159,6 @@ const searchVideos = async (req, res) => {
   }
 };
 
-
-// Trending videos - sorted by views
 const getTrendingVideos = async (req, res) => {
   try {
     const videos = await Video.find().sort({ views: -1 }).limit(20);
@@ -145,8 +168,6 @@ const getTrendingVideos = async (req, res) => {
   }
 };
 
-
-// Get all videos by a specific user
 const getVideosByUser = async (req, res) => {
   try {
     const videos = await Video.find({ userId: req.params.userId })
@@ -157,8 +178,6 @@ const getVideosByUser = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   uploadVideo,
   getVideo,
@@ -167,7 +186,6 @@ module.exports = {
   searchVideos,
   likeVideo,
   dislikeVideo,
-    getTrendingVideos,
-    getVideosByUser,
-
+  getTrendingVideos,
+  getVideosByUser,
 };

@@ -1,10 +1,13 @@
 const Comment = require("../models/Comment");
 const User = require("../models/User");
+const Video = require("../models/Video");
+const Notification = require("../models/Notification");
 
-// Add comment
 const addComment = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    const video = await Video.findById(req.params.videoId);
+
     const newComment = new Comment({
       videoId: req.params.videoId,
       userId: req.user.id,
@@ -13,13 +16,27 @@ const addComment = async (req, res) => {
       content: req.body.content,
     });
     await newComment.save();
+
+    // Notify video owner
+    if (video && video.userId !== req.user.id) {
+      await Notification.create({
+        receiverId: video.userId,
+        senderId: req.user.id,
+        senderName: user.username,
+        senderAvatar: user.avatar || "",
+        type: "comment",
+        message: `${user.username} commented on your video "${video.title}"`,
+        videoId: video._id,
+        videoTitle: video.title,
+      });
+    }
+
     res.status(201).json(newComment);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Get comments for a video
 const getComments = async (req, res) => {
   try {
     const comments = await Comment.find({ videoId: req.params.videoId })
@@ -30,7 +47,6 @@ const getComments = async (req, res) => {
   }
 };
 
-// Delete comment
 const deleteComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.commentId);

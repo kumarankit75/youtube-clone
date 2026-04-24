@@ -11,6 +11,7 @@ import Trending from "./pages/Trending";
 import TagVideos from "./pages/TagVideos";
 import Channel from "./pages/Channel";
 import Profile from "./pages/Profile";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/tags" element={<TagVideos />} />
             <Route path="/channel/:channelId" element={<Channel />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

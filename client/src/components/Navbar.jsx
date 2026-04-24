@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import { toggleTheme } from "../redux/themeSlice";
+import API from "../utils/api";
 
 const Navbar = () => {
   const { currentUser } = useSelector((state) => state.user);
@@ -13,6 +14,23 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread notifications count every 30 seconds
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchUnread = async () => {
+      try {
+        const res = await API.get("/api/notifications/unread-count");
+        setUnreadCount(res.data.count);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -64,7 +82,7 @@ const Navbar = () => {
         </form>
 
         {/* Right */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
 
           {/* Mobile Search Toggle */}
           <button
@@ -88,8 +106,22 @@ const Navbar = () => {
 
           {currentUser ? (
             <>
+              {/* Notification Bell */}
+              <Link
+                to="/notifications"
+                onClick={() => setUnreadCount(0)}
+                className="relative w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                🔔
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Upload - hidden on small screens */}
               <Link to="/upload"
-                className="hidden sm:block bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-700">
+                className="hidden sm:block bg-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-700 transition">
                 + Upload
               </Link>
 
@@ -110,12 +142,23 @@ const Navbar = () => {
                   </span>
                 </button>
 
+                {/* Dropdown Menu */}
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                     <Link to="/upload"
                       onClick={() => setShowMenu(false)}
                       className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition sm:hidden">
                       📤 Upload Video
+                    </Link>
+                    <Link to="/notifications"
+                      onClick={() => { setShowMenu(false); setUnreadCount(0); }}
+                      className="flex items-center justify-between px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                      <span>🔔 Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                          {unreadCount}
+                        </span>
+                      )}
                     </Link>
                     <Link to="/profile"
                       onClick={() => setShowMenu(false)}
@@ -142,7 +185,7 @@ const Navbar = () => {
                 Sign In
               </Link>
               <Link to="/register"
-                className="bg-red-600 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-red-700">
+                className="bg-red-600 text-white px-3 py-2 rounded-full text-sm font-semibold hover:bg-red-700 transition">
                 Register
               </Link>
             </>
@@ -166,11 +209,15 @@ const Navbar = () => {
         </form>
       )}
 
-      {/* Mobile Side Menu */}
+      {/* Mobile Side Menu Drawer */}
       {showMobileMenu && (
         <div className="md:hidden fixed inset-0 z-40 flex">
-          <div className="fixed inset-0 bg-black bg-opacity-50"
-            onClick={() => setShowMobileMenu(false)} />
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowMobileMenu(false)}
+          />
+          {/* Drawer */}
           <div className="relative w-64 bg-white dark:bg-gray-900 h-full shadow-xl z-50 flex flex-col p-6">
             <div className="flex items-center gap-2 mb-8">
               <span className="bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">▶</span>
@@ -188,6 +235,16 @@ const Navbar = () => {
               </Link>
               {currentUser && (
                 <>
+                  <Link to="/notifications"
+                    onClick={() => { setShowMobileMenu(false); setUnreadCount(0); }}
+                    className="flex items-center justify-between px-3 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                    <span className="flex items-center gap-3">🔔 Notifications</span>
+                    {unreadCount > 0 && (
+                      <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
                   <Link to="/upload" onClick={() => setShowMobileMenu(false)}
                     className="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                     📤 Upload Video
@@ -217,7 +274,7 @@ const Navbar = () => {
                     Sign In
                   </Link>
                   <Link to="/register" onClick={() => setShowMobileMenu(false)}
-                    className="w-full text-center py-3 rounded-lg bg-red-600 text-white font-semibold">
+                    className="w-full text-center py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition">
                     Register
                   </Link>
                 </div>
