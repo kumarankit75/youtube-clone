@@ -27,25 +27,25 @@ const Trending = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 p-6 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 md:p-6 transition-colors duration-300">
       <h2 className="text-gray-900 dark:text-white text-2xl font-bold mb-6">🔥 Trending Videos</h2>
       <div className="flex flex-col gap-4">
         {videos.map((video, index) => (
           <Link to={`/video/${video._id}`} key={video._id}
-            className="flex gap-4 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden hover:bg-gray-200 dark:hover:bg-gray-700 transition p-3">
-            <span className="text-gray-400 dark:text-gray-500 font-bold text-2xl w-8 flex items-center">
+            className="flex gap-3 md:gap-4 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden hover:bg-gray-200 dark:hover:bg-gray-700 transition p-3">
+            <span className="text-gray-400 font-bold text-xl md:text-2xl w-6 md:w-8 flex items-center flex-shrink-0">
               {index + 1}
             </span>
             <img src={video.thumbnailUrl} alt={video.title}
-              className="w-48 h-28 object-cover rounded-lg flex-shrink-0" />
-            <div className="flex flex-col justify-center">
-              <h3 className="text-gray-900 dark:text-white font-semibold text-lg mb-1 line-clamp-2">
+              className="w-32 md:w-48 h-20 md:h-28 object-cover rounded-lg flex-shrink-0" />
+            <div className="flex flex-col justify-center min-w-0">
+              <h3 className="text-gray-900 dark:text-white font-semibold text-sm md:text-lg mb-1 line-clamp-2">
                 {video.title}
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">
+              <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
                 👁 {video.views} views • 👍 {video.likes.length} likes
               </p>
-              <p className="text-gray-400 dark:text-gray-500 text-sm line-clamp-2">
+              <p className="text-gray-400 dark:text-gray-500 text-xs md:text-sm line-clamp-2 hidden sm:block">
                 {video.description}
               </p>
             </div>
