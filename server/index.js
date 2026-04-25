@@ -29,10 +29,15 @@ const io = new Server(server, {
 app.use(cors({
   origin: [
     "http://localhost:5173",
+    "https://my-tubeclone.vercel.app",
     process.env.FRONTEND_URL,
   ],
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
+app.options("*", cors()); // Handle preflight requests
 
 app.use(express.json());
 
